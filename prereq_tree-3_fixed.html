@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дерево предпосылок. Katy Growth</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --dark: #1c1c1a;
+  --dark2: #242422;
+  --gold: #c8a84b;
+  --gold-bg: #f8f1de;
+  --gold-border: #dfc97a;
+  --paper: #faf9f6;
+  --warm: #f3f0e8;
+  --border: #e2ddd4;
+  --text: #1a1a18;
+  --text2: #4e4e4c;
+  --text3: #9a9a98;
+  --green: #2d4a3e;
+  --green-bg: #edf3ef;
+  --green-text: #385e4a;
+  --sans: 'Manrope', sans-serif;
+}
+body { font-family: var(--sans); background: var(--paper); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+/* COVER — с золотой левой полосой */
+.cover {
+  background: var(--paper);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  padding: 44px 56px 44px 72px;
+  page-break-after: always;
+  position: relative;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 6px;
+  background: linear-gradient(to bottom, var(--gold), var(--dark));
+}
+.cover-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 28px; border-bottom: 1px solid var(--border);
+}
+.katy-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text);
+}
+.katy-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+.cover-top-right { font-size: 11px; color: var(--text3); font-weight: 500; letter-spacing: 0.08em; }
+.cover-body {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; padding: 64px 0 48px; max-width: 620px;
+}
+.cover-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 20px; display: block;
+}
+.cover h1 {
+  font-size: clamp(32px, 5vw, 50px); font-weight: 800;
+  line-height: 1.1; color: var(--text); margin-bottom: 6px;
+  letter-spacing: -0.025em;
+}
+.cover h1 .accent { color: var(--gold); }
+.cover-title-sub {
+  font-size: clamp(20px, 3vw, 30px); font-weight: 300;
+  line-height: 1.2; color: var(--text2); margin-bottom: 32px;
+  letter-spacing: -0.015em;
+}
+.cover-divider { width: 40px; height: 2px; background: var(--gold); margin-bottom: 24px; }
+.cover-sub {
+  font-size: 15px; line-height: 1.72; color: var(--text2);
+  font-weight: 400; max-width: 500px;
+}
+.cover-bottom {
+  border-top: 1px solid var(--border); padding-top: 22px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cover-bottom-text { font-size: 11px; color: var(--text3); font-weight: 500; }
+
+/* PAGE — с левой полосой и номером страницы */
+.page {
+  background: var(--paper);
+  padding: 48px 56px 72px 72px;
+  page-break-before: always;
+  min-height: 100vh;
+  position: relative;
+}
+.page::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--border);
+}
+.page-num {
+  position: absolute;
+  bottom: 32px; right: 56px;
+  font-size: 11px; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.08em;
+}
+
+/* PAGE HEADER */
+.ph {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 36px; padding-bottom: 18px;
+  border-bottom: 2px solid var(--dark);
+}
+.ph-eye {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 6px; display: block;
+}
+.ph h2 { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; line-height: 1.15; }
+.ph-logo {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--text3); text-transform: uppercase; flex-shrink: 0; margin-top: 4px;
+}
+.ph-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+/* SECTION */
+.sec { margin-bottom: 44px; }
+.sec:last-child { margin-bottom: 0; }
+.sec-eye {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 8px; display: block;
+}
+.sec h3 { font-size: 19px; font-weight: 700; color: var(--text); letter-spacing: -0.015em; margin-bottom: 14px; line-height: 1.25; }
+.sec p { font-size: 15px; line-height: 1.78; color: var(--text2); margin-bottom: 12px; max-width: 620px; }
+.sec p:last-child { margin-bottom: 0; }
+.sec p strong { color: var(--text); font-weight: 600; }
+
+/* BODY TEXT */
+.bt { font-size: 15px; line-height: 1.78; color: var(--text2); margin-bottom: 14px; max-width: 620px; }
+.bt strong { color: var(--text); font-weight: 600; }
+.bt:last-child { margin-bottom: 0; }
+
+/* KEY QUESTION */
+.key-q {
+  background: var(--warm);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text);
+  border-radius: 0 6px 6px 0;
+  padding: 14px 20px;
+  margin: 16px 0 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* TIMELINE — с тенью на карточках и крупными точками */
+.timeline { margin: 24px 0; position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute;
+  left: 10px; top: 20px; bottom: 20px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gold), var(--border));
+}
+.tl-item { position: relative; margin-bottom: 8px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot {
+  position: absolute; left: -27px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--paper); border: 2.5px solid var(--gold);
+  box-shadow: 0 0 0 3px rgba(200,168,75,0.15);
+  z-index: 1;
+}
+.tl-item:last-child .tl-dot {
+  background: var(--gold);
+  box-shadow: 0 0 0 4px rgba(200,168,75,0.2);
+}
+.tl-card {
+  background: var(--warm); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 18px;
+  display: grid; grid-template-columns: 200px 1fr; gap: 0;
+  min-height: 64px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
+}
+.tl-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.09); }
+.tl-item:last-child .tl-card { background: var(--gold-bg); border-color: var(--gold-border); }
+.tl-left {
+  padding-right: 16px; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.tl-item:last-child .tl-left { border-color: var(--gold-border); }
+.tl-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.tl-item:last-child .tl-name { color: var(--gold); }
+.tl-q { font-size: 11px; color: var(--gold); margin-top: 2px; font-weight: 600; }
+.tl-right { padding-left: 16px; display: flex; align-items: center; }
+.tl-desc { font-size: 13px; color: var(--text3); font-style: italic; line-height: 1.55; }
+.tl-item:last-child .tl-desc { color: #8a6e20; font-style: normal; font-weight: 600; }
+
+/* BOOK */
+.book {
+  background: var(--green-bg); border-left: 3px solid var(--green);
+  padding: 18px 22px; margin: 16px 0; border-radius: 0 6px 6px 0;
+  max-width: 620px;
+}
+.book-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 9px; display: flex; align-items: center; gap: 10px;
+}
+.book-lbl::after { content: ''; flex: 1; height: 1px; background: var(--green); opacity: 0.15; }
+.book p { font-size: 13.5px; line-height: 1.72; color: var(--green-text); font-style: italic; margin-bottom: 7px; }
+.book p:last-child { margin-bottom: 0; }
+
+/* GOLD BLOCK */
+.gold {
+  background: var(--gold-bg); border-left: 3px solid var(--gold);
+  padding: 18px 22px; margin: 16px 0; border-radius: 0 6px 6px 0;
+}
+.gold-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 9px; display: flex; align-items: center; gap: 10px;
+}
+.gold-lbl::after { content: ''; flex: 1; height: 1px; background: var(--gold-border); }
+.gold p { font-size: 14px; line-height: 1.72; color: #6b4c14; margin-bottom: 7px; }
+.gold p:last-child { margin-bottom: 0; }
+
+/* BULLETS */
+.blist { list-style: none; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 14px 0; }
+.blist li {
+  padding: 11px 16px 11px 36px; position: relative;
+  font-size: 14px; line-height: 1.65; color: var(--text2);
+  border-bottom: 1px solid var(--border);
+}
+.blist li:nth-child(even) { background: var(--warm); }
+.blist li:last-child { border-bottom: none; }
+.blist li::before {
+  content: ''; position: absolute; left: 14px; top: 18px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+}
+
+/* TABLE — с золотой полосой на первой колонке */
+.tbl-wrap {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 16px 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  max-width: 620px;
+}
+.tbl-wrap.tbl-wide { max-width: none; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead tr { background: var(--dark); }
+thead th { padding: 11px 14px; text-align: left; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #999; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--warm); }
+tbody td { padding: 12px 14px; vertical-align: top; line-height: 1.6; color: var(--text2); }
+tbody td:first-child {
+  font-weight: 600; color: var(--text); width: 33%;
+  border-left: 3px solid var(--gold-border);
+}
+.td-auto { color: var(--green); font-style: italic; font-size: 12.5px; }
+.td-note { color: var(--text3); font-style: italic; font-size: 12px; display: block; margin-top: 3px; }
+
+/* SEQUENCE */
+.seq { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 16px 0; }
+.seq-item { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+.seq-item:nth-child(even) { background: var(--warm); }
+.seq-item:last-child { border-bottom: none; }
+.seq-n { width: 24px; height: 24px; border-radius: 50%; background: var(--dark); color: var(--gold); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.seq-n.par { background: var(--green); color: #fff; font-size: 9px; }
+.seq-txt { font-size: 14px; line-height: 1.6; color: var(--text2); }
+.seq-note { font-size: 11.5px; color: var(--text3); font-style: italic; margin-top: 3px; display: block; }
+
+.slbl { font-size: 12px; font-weight: 700; color: var(--text); margin: 20px 0 10px; }
+
+/* CTA — одна колонка, крупный финальный блок */
+.cta { background: var(--dark); padding: 72px 56px 64px; page-break-before: always; position: relative; }
+.cta::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 6px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+}
+.cta-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 52px; padding-bottom: 24px; border-bottom: 1px solid #2e2e2c; }
+.cta-logo { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; }
+.cta-tag { font-size: 10px; color: #444; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+.cta-inner { max-width: 640px; margin: 0 auto; }
+.cta-eye { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: block; }
+.cta h2 { font-size: 36px; font-weight: 800; color: #fff; letter-spacing: -0.025em; line-height: 1.1; margin-bottom: 20px; }
+.cta-sub { font-size: 15px; color: #888; line-height: 1.78; margin-bottom: 40px; max-width: 520px; }
+.cta-steps { display: flex; flex-direction: column; background: #2a2a28; border: 1px solid #2a2a28; border-radius: 10px; overflow: hidden; }
+.cta-step { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; background: var(--dark2); }
+.cta-sn { width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--dark); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cta-st { font-size: 13.5px; color: #ccc; line-height: 1.55; padding-top: 3px; }
+
+@media(max-width:640px){
+  .cover,.page,.cta { padding-left: 24px; padding-right: 24px; }
+  .cover h1 { font-size: 28px; }
+  .tl-card { grid-template-columns: 1fr; }
+  .tl-left { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 10px; margin-bottom: 8px; }
+  thead th:nth-child(2), tbody td:nth-child(2) { display: none; }
+  .cta-steps { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="katy-logo"><div class="katy-dot"></div>Katy Growth</div>
+    <div class="cover-top-right">Системное мышление · Инструменты</div>
+  </div>
+  <div class="cover-body">
+    <span class="cover-eyebrow" style="font-size:10px; color:var(--text3); letter-spacing:0.1em; font-weight:500; text-transform:none;">По книге «Цель 2. Дело не в везении» · Элияху Голдратт</span>
+    <h1>Дерево предпосылок:<br><span class="accent">от хаоса задач</span></h1>
+    <div class="cover-title-sub">к одному фокусу</div>
+    <div class="cover-divider"></div>
+    <p class="cover-sub">Инструмент системного мышления: как среди множества задач найти ту, которая даст наибольший рост прямо сейчас</p>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-bottom-text">Thinking Processes Голдратта · «Цель 2. Дело не в везении»</div>
+  </div>
+</div>
+
+<!-- PAGE 1: INTRO + LOGIC -->
+
+<!-- PAGE 2: STEPS 1–2 -->
+<div class="page"><div class="page-num">02</div>
+
+  <div class="ph">
+    <div class="ph-left">
+      <h2>Цель и препятствия</h2>
+    </div>
+    <div class="ph-logo"><div class="ph-dot"></div>Katy Growth</div>
+  </div>
+
+  <div class="sec">
+    <span class="sec-eye">Шаг 1</span>
+    <h3>Формулируем цель</h3>
+    <p>Одно предложение. Конкретно, что должно произойти. Важно сделать это первым шагом. Иначе непонятно, какие препятствия вообще имеют значение.</p>
+    <div class="book">
+      <div class="book-lbl">Пример из книги</div>
+      <p>Получить равноценную или лучшую работу уровня вице-президента.</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <span class="sec-eye">Шаг 2</span>
+    <h3>Выписываем препятствия</h3>
+    <p>Всё, что мешает прямо сейчас. Выписываем всё подряд.</p>
+    <p>Важно начинать именно с препятствий: мозгу проще видеть ограничения, чем придумывать решения с нуля. Когда они выписаны, хаос становится списком. А со списком уже можно работать.</p>
+    <div class="book">
+      <div class="book-lbl">Контекст из книги</div>
+      <p>Алекс, топ-менеджер холдинга UniCo. Совет директоров решил продать все три его компании. Результат продажи напрямую влияет на его репутацию: если компании уйдут дёшево или одну ликвидируют, это чёрная метка, и на позицию вице-президента не попасть. Жена Джули задаёт вопрос: «У тебя есть план по компаниям. А план для себя?» Она достаёт блокнот, и они вместе выписывают всё, что стоит на пути.</p>
+    </div>
+    <p>Алекс выписывает:</p>
+    <ul class="blist">
+      <li>У компании Стейси нет маркетингового решения. Без него её ликвидируют</li>
+      <li>Прибыль компаний Питера и Боба слишком низкая</li>
+      <li>Стоимость компаний Питера и Боба остаётся низкой</li>
+      <li>Нет достаточного понимания, что нужно потенциальным покупателям</li>
+      <li>Для позиции такого уровня нужны сильные рекомендации</li>
+      <li>Вакансий уровня вице-президента очень мало</li>
+      <li>Нет убедительного послужного списка на позиции такого уровня</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PAGE 3: STEP 3 -->
+<div class="page"><div class="page-num">03</div>
+
+  <div class="ph">
+    <div class="ph-left">
+      <span class="ph-eye">Шаг 3</span>
+      <h2>Промежуточные задачи</h2>
+    </div>
+    <div class="ph-logo"><div class="ph-dot"></div>Katy Growth</div>
+  </div>
+
+  <p class="bt">Под каждое препятствие формулируется промежуточная задача.</p>
+  <div class="key-q">Что должно измениться, чтобы это препятствие перестало блокировать цель?</div>
+  <p class="bt">В процессе часто обнаруживается: часть препятствий закрывается сама, как следствие других задач. Это один из главных инсайтов инструмента: не каждое препятствие требует отдельного решения.</p>
+
+  <div class="tbl-wrap tbl-wide">
+    <table>
+      <thead>
+        <tr><th>Препятствие</th><th>Почему блокирует цель</th><th>Промежуточная задача</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Нет решения для Стейси / Прибыль Питера и Боба низкая</td>
+          <td>Плохой результат продажи = плохая репутация</td>
+          <td>Внедрить уже найденные решения. Нужно просто время</td>
+        </tr>
+        <tr>
+          <td>Стоимость компаний низкая</td>
+          <td>Продать дешевле, чем купили = провал для менеджера</td>
+          <td>Стоимость компаний высокая <span class="td-note">Алекс уже предпринял нужные действия, задача фактически в процессе</span></td>
+        </tr>
+        <tr>
+          <td>Недостаточно знаний для презентации покупателям</td>
+          <td>Без презентации не продать по хорошей цене</td>
+          <td>Вместе с людьми, которые будут продавать компании, построить убедительную презентацию</td>
+        </tr>
+        <tr>
+          <td>Покупатели не видят компании как сильные активы</td>
+          <td>Нет ценности в глазах покупателя = нет нормальной цены</td>
+          <td><span class="td-auto">Закрывается само, как следствие предыдущей задачи</span></td>
+        </tr>
+        <tr>
+          <td>Нужны сильные рекомендации</td>
+          <td>Без рекомендаций на позицию вице-президента не попасть</td>
+          <td><span class="td-auto">Рекомендации придут как результат, если предыдущие задачи закрыты успешно</span></td>
+        </tr>
+        <tr>
+          <td>Вакансий уровня вице-президента мало</td>
+          <td>Мало возможностей, мало шансов</td>
+          <td>Подходящие позиции определены <span class="td-note">Формально можно начать сейчас. Алекс говорит: нет смысла. Пока остальные задачи не закрыты, позиция слабая. Если выиграет, придут золотой парашют, время и другие стартовые условия</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 4: STEPS 4–5 -->
+<div class="page"><div class="page-num">04</div>
+
+  <div class="ph">
+    <div class="ph-left">
+      <h2>Последовательность и фокус</h2>
+    </div>
+    <div class="ph-logo"><div class="ph-dot"></div>Katy Growth</div>
+  </div>
+
+  <div class="sec">
+    <span class="sec-eye">Шаг 4</span>
+    <h3>Выстраиваем последовательность</h3>
+    <p>Смотрим на промежуточные задачи и спрашиваем: что нужно сделать сначала, чтобы следующее стало возможным? Если задачу пока невозможно закрыть, значит есть препятствие, которое снимается предыдущей задачей. Так выстраивается цепочка.</p>
+    <div class="seq">
+      <div class="seq-item"><div class="seq-n">1</div><div class="seq-txt">Компании получают время на внедрение решений</div></div>
+      <div class="seq-item"><div class="seq-n">2</div><div class="seq-txt">Прибыль растёт, стоимость компаний повышается</div></div>
+      <div class="seq-item"><div class="seq-n">3</div><div class="seq-txt">Покупатели видят компании как сильные активы</div></div>
+      <div class="seq-item"><div class="seq-n">4</div><div class="seq-txt">Убедительная презентация готова, компании продаются с хорошим результатом</div></div>
+      <div class="seq-item"><div class="seq-n">5</div><div class="seq-txt">Рекомендации появляются как естественное следствие</div></div>
+      <div class="seq-item"><div class="seq-n">6</div><div class="seq-txt">Можно получить работу нужного уровня</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <span class="sec-eye">Шаг 5</span>
+    <h3>Выбираем, что важно сейчас</h3>
+    <p>Смотрим на всё дерево и задаём вопрос: где сейчас настоящее узкое место?</p>
+    <div class="book">
+      <div class="book-lbl">Из книги</div>
+      <p>После того как дерево готово, Алекс понимает: он тратит слишком много времени на корпоративную бумажную работу, которая не двигает ни одну ключевую задачу. Дерево сделало это видимым.</p>
+      <p>Фокус сместился на три вещи: компания Стейси должна разработать маркетинговый подход, который даст ей решающее конкурентное преимущество; нужно убедить Брэндона и Джима принять концепцию продажи компании Питера как «модели совершенства»; компания Боба должна внедрить решение максимально гладко.</p>
+      <p>Алекс заключает: «И ничто не должно меня от этого отвлекать».</p>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: BUSINESS EXAMPLE -->
+<div class="page"><div class="page-num">05</div>
+
+  <div class="ph">
+    <div class="ph-left">
+      <span class="ph-eye">Пример из бизнеса</span>
+      <h2>Основатель в ловушке роста</h2>
+    </div>
+    <div class="ph-logo"><div class="ph-dot"></div>Katy Growth</div>
+  </div>
+
+  <p class="bt">Ситуация: основатель хочет масштабироваться, всё делает сам. Понимает, что нужен человек в команду. На поиск времени нет, потому что всё делает сам.</p>
+
+  <div class="gold">
+    <div class="gold-lbl">Цель</div>
+    <p>Масштабировать бизнес и увеличить выручку через управляемую систему, которая работает без постоянного участия основателя</p>
+  </div>
+
+  <div class="slbl">Препятствия</div>
+  <ul class="blist">
+    <li>Все решения и контроль процессов замкнуты на основателе</li>
+    <li>Не хватает людей, которые работают самостоятельно в своей зоне</li>
+    <li>Нужных профессионалов сложно найти</li>
+    <li>Нет времени на поиск новых людей</li>
+    <li>Прибыльные направления не получают внимания</li>
+    <li>Стоимость ошибки высокая: проще сделать самому, чем переделывать за другим</li>
+    <li>Задачи, которые не требуют квалификации основателя, всё равно выполняются им</li>
+    <li>Нет времени на развитие: партнёрства, продвижение, новые направления</li>
+  </ul>
+
+  <div class="slbl">Промежуточные задачи</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Препятствие</th><th>Промежуточная задача</th></tr></thead>
+      <tbody>
+        <tr><td>Все решения замкнуты на основателе</td><td>Определить, какие решения можно передать без потери качества</td></tr>
+        <tr><td>Не хватает самостоятельных людей</td><td>Найти людей под конкретные функции и ввести в работу</td></tr>
+        <tr><td>Нужных профессионалов сложно найти</td><td>Сформулировать профили и запустить поиск по рекомендациям</td></tr>
+        <tr><td>Нет времени на поиск новых людей</td><td>Определить задачи, которые можно передать прямо сейчас, и начать их передавать</td></tr>
+        <tr><td>Прибыльные направления не получают внимания</td><td>Определить приоритетные направления и зафиксировать время на них</td></tr>
+        <tr><td>Стоимость ошибки высокая</td><td>Начать передачу с задач, где цена ошибки минимальна, и постепенно расширять</td></tr>
+        <tr><td>Задачи без квалификации выполняет сам</td><td>Найти ассистента или сотрудника на парт-тайм</td></tr>
+        <tr><td>Нет времени на развитие</td><td><span class="td-auto">Закрывается само, когда операционные задачи переданы и основатель выходит из рутины</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="slbl">Последовательность</div>
+  <div class="seq">
+    <div class="seq-item"><div class="seq-n">1</div><div class="seq-txt">Определить, какие задачи не требуют основателя</div></div>
+    <div class="seq-item"><div class="seq-n">2</div><div class="seq-txt">Найти человека на операционную рутину</div></div>
+    <div class="seq-item">
+      <div class="seq-n par">⇉</div>
+      <div class="seq-txt">Параллельно: запустить поиск профессионалов по рекомендациям<span class="seq-note">Найм долгий процесс: пока он идёт, появляется время разобраться с передачей задач</span></div>
+    </div>
+    <div class="seq-item"><div class="seq-n">3</div><div class="seq-txt">Начать передачу с задач с минимальной ценой ошибки</div></div>
+    <div class="seq-item"><div class="seq-n">4</div><div class="seq-txt">Расширять зону ответственности новых людей постепенно</div></div>
+    <div class="seq-item"><div class="seq-n">5</div><div class="seq-txt">Освободить время на то, что реально двигает бизнес вперёд</div></div>
+  </div>
+
+  <div class="gold">
+    <div class="gold-lbl">Главное ограничение сейчас</div>
+    <p>Пока операционная рутина на основателе, времени на всё остальное не появится. Первый шаг: найти человека на задачи, которые не требуют его квалификации</p>
+  </div>
+</div>
+
+
+
+
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-top">
+    <div class="cta-logo"><div class="katy-dot"></div>Katy Growth</div>
+    <div class="cta-tag">Системное мышление · Инструменты роста</div>
+  </div>
+  <div class="cta-inner">
+    <div>
+      <span class="cta-eye">С чего начать</span>
+      <h2>Попробуй прямо сейчас</h2>
+      <p class="cta-sub">Возьми ситуацию, которая сейчас висит в голове как нерешённая. Напиши одно предложение: чего хочешь достичь. Потом выпиши всё, что мешает. Всё подряд. Разложи последовательность и фокус станет виден сам.</p>
+    </div>
+    <div class="cta-steps">
+      <div class="cta-step"><div class="cta-sn">1</div><div class="cta-st">Напиши цель. Одно предложение</div></div>
+      <div class="cta-step"><div class="cta-sn">2</div><div class="cta-st">Выпиши все препятствия подряд</div></div>
+      <div class="cta-step"><div class="cta-sn">3</div><div class="cta-st">Под каждое препятствие: промежуточная задача</div></div>
+      <div class="cta-step"><div class="cta-sn">4</div><div class="cta-st">Выстрой последовательность</div></div>
+      <div class="cta-step"><div class="cta-sn">5</div><div class="cta-st">Найди главное ограничение сейчас</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
